@@ -19,6 +19,7 @@ var (
 	ErrEmptyTypeName = errors.New("type name was empty. this kills the batman.")
 	ErrNotStruct     = errors.New("data was not a struct")
 	ErrEmpty         = errors.New("empty value")
+	ErrNil           = errors.New("argument was nil, expected not nil")
 )
 
 // Convenience alias for a dgraph Node
@@ -74,11 +75,28 @@ func New(dg *dgraph.Dgraph) (*Dqrack, error) {
 		return nil, err
 	}
 
-	return &Dqrack{
+	if dg == nil {
+		return nil, ErrNil
+	}
+
+	d := &Dqrack{
 		Dgraph: dg,
 		mapper: reflectx.NewMapper("dqwwww"),
 		lru:    l,
-	}, nil
+	}
+
+	req := &dgraph.Req{}
+	req.SetQuery(`
+		mutation {
+			schema {
+				_identity: string @index(exact) .
+				_type: string @index(exact) .
+			}
+		}
+	`)
+	_, err = d.Run(req)
+
+	return d, err
 }
 
 func (dq *Dqrack) Run(req *dgraph.Req) (*protos.Response, error) {

@@ -11,24 +11,9 @@ import (
 )
 
 func TestGetNode(t *testing.T) {
-	req := &dgraph.Req{}
-	req.SetQuery(`
-		mutation {
-			schema {
-				_identity: string @index(exact) .
-				_type: string @index(exact) .
-			}
-		}
-	`)
-	_, err := dq.Dgraph.Run(context.Background(), req)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-
 	n := testTnode
 	n.identity = n.GetName()
-	_, err = dq.GetNode(n)
+	_, err := dq.GetNode(n)
 	if err != nil {
 		t.Error(err)
 		return
