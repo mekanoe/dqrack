@@ -1,8 +1,8 @@
 sudo: required
 
 go:
-  - master
   - 1.9.x
+  # - master
 
 services:
  - docker
