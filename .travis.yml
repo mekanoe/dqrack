@@ -1,21 +1,29 @@
 sudo: required
 
+services:
+ - docker
+
 language: go
 
 go:
   - 1.9.x
   - master
 
-services:
- - docker
-
 env:
-  DGRAPH_ADDR=127.0.0.1:9080
-  DGVERSION=v0.8.1
+  global:
+    - DGRAPH_ADDR=127.0.0.1:9080
+  matrix:
+    - DGVERSION=v0.8.1
+    - DGVERSION=master
+
+matrix:
+  allow_failures:
+    - go: master
+    - env: DGVERSION=master
 
 before_install:
   - docker pull dgraph/dgraph:$DGVERSION
-  - docker run -d -p 127.0.0.1:9080:9080 --name dgraph dgraph/dgraph:$DGVERSION dgraph --bindall=true --memory_mb 2048
+  - docker run -d -p 127.0.0.1:9080:9080 --name dgraph-$DGVERSION dgraph/dgraph:$DGVERSION dgraph --bindall=true --memory_mb 2048
   - go get -u github.com/golang/dep/cmd/dep
 
 install:
@@ -29,4 +37,4 @@ script:
   - go test -race -v ./...
 
 after_script:
-  - docker rm -f dgraph
+  - docker rm -f dgraph-$DGVERSION
