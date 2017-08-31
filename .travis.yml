@@ -1,8 +1,10 @@
 sudo: required
 
+language: go
+
 go:
   - 1.9.x
-  # - master
+  - master
 
 services:
  - docker
