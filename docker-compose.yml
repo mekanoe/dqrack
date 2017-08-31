@@ -4,7 +4,7 @@ version: '3'
 services: 
   dgraph:
     image: dgraph/dgraph:v0.8.1
-    command: dgraph --bindall=true --memory_mb 2048
+    command: dgraph --bindall=true --memory_mb 1025
     ports:
       - 8080
       - 9080
