@@ -8,6 +8,7 @@ package dqrack // import "github.com/kayteh/dqrack"
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"reflect"
@@ -16,6 +17,12 @@ import (
 	dgraph "github.com/dgraph-io/dgraph/client"
 	"github.com/imdario/mergo"
 	"github.com/jmoiron/sqlx/reflectx"
+)
+
+var (
+	ErrEmptyTypeName = errors.New("type name was empty. this kills the batman.")
+	ErrNotStruct     = errors.New("out was not a struct")
+	ErrEmpty         = errors.New("empty value")
 )
 
 // Dqrack is a set of cheap tricks, like any other cheap trick library.
@@ -42,18 +49,28 @@ type tagOpts struct {
 
 	// Skip marshalling this, only on `dq:"-"`
 	Ignore bool
+
+	// Index in schema
+	Index bool
 }
 
 // Qrackable types let us get information out of structs in a non-arbitrary fashion.
 type Qrackable interface {
 	GetName() string
+}
+
+type QDataable interface {
 	GetData() interface{}
+}
+
+type QTypeable interface {
+	GetType() string
 }
 
 func New(dg *dgraph.Dgraph) *Dqrack {
 	return &Dqrack{
 		Dgraph: dg,
-		Mapper: reflectx.NewMapper("dq"),
+		Mapper: reflectx.NewMapper("dqwwww"),
 	}
 }
 
@@ -65,15 +82,39 @@ func (dq *Dqrack) GetNode(v Qrackable) (n dgraph.Node, err error) {
 		return
 	}
 
-	d := v.GetData()
-	// d := v
+	var d interface{}
+	d = v
+
+	rd := reflect.ValueOf(v)
+
+	gd := rd.MethodByName("GetData")
+	if gd.IsValid() {
+		d = gd.Call([]reflect.Value{})[0].Interface()
+	}
 
 	rt := reflect.TypeOf(d)
-	qt := reflect.TypeOf(v)
+	if rt.Kind() != reflect.Struct {
+		return n, ErrNotStruct
+	}
+
+	var typeName string
+	gt := rd.MethodByName("GetType")
+	if gt.IsValid() {
+		typeName = gt.Call([]reflect.Value{})[0].String()
+	} else {
+		typeName = reflect.TypeOf(v).Name()
+	}
+
+	if typeName == "" {
+		return n, ErrEmptyTypeName
+	}
+
 	rv := reflect.ValueOf(d)
 	fm := dq.Mapper.FieldMap(rv)
 
-	log.Println("node", vName, "of", qt.Name())
+	log.Println()
+
+	log.Println("node", vName, "of", typeName)
 	req := &dgraph.Req{}
 
 	var e dgraph.Edge
@@ -81,7 +122,7 @@ func (dq *Dqrack) GetNode(v Qrackable) (n dgraph.Node, err error) {
 	// basic edges
 	// type makes it searchable by the struct name
 	e = n.Edge("_type")
-	e.SetValueString(strings.ToLower(qt.Name()))
+	e.SetValueString(strings.ToLower(typeName))
 	err = req.Set(e)
 	if err != nil {
 		return
@@ -100,15 +141,25 @@ func (dq *Dqrack) GetNode(v Qrackable) (n dgraph.Node, err error) {
 			continue
 		}
 
+		dk := structKeyToName(key)
+
 		sf, _ := rt.FieldByName(key)
-		skey := getTag(sf, key)
+		skey := getTag(sf, dk)
 		to := parseDqTag(skey)
 
+		// handle ex. dq:"-"
 		if to.Ignore {
 			continue
 		}
 
-		log.Println("in", key, "dq:", skey)
+		log.Println(to)
+
+		// handle ex. dq:",index"
+		if to.Name == "" {
+			to.Name = dk
+		}
+
+		log.Println("in", key, "dq:", skey, "to:", to.Name)
 
 		e = n.Edge(to.Name)
 		err = setEdge(&e, rfv)
@@ -136,6 +187,9 @@ func setEdge(e *dgraph.Edge, v reflect.Value) error {
 	case reflect.String:
 		log.Println("putting string", v.String())
 		val := strings.Replace(v.String(), "\"", "\\\"", -1)
+		if val == "" {
+			return ErrEmpty
+		}
 		return e.SetValueString(val)
 	case reflect.Bool:
 		log.Println("putting bool", v.Bool())
@@ -194,4 +248,10 @@ func parseDqTag(tag string) tagOpts {
 func tagOptsFromMap(om map[string]interface{}) (to tagOpts) {
 	mergo.Map(&to, om)
 	return
+}
+
+func structKeyToName(key string) string {
+	s := strings.ToLower(key)
+	s = strings.Replace(s, ".", "_", -1)
+	return s
 }
