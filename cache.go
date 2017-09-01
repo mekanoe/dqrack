@@ -44,7 +44,7 @@ func (dq *Dqrack) Node(v Qrackable) (n Node, err error) {
 // Node fetches a node based on a Qrackable struct.
 // An empty node can be tested for with n.String() == ""
 func (dq *Dqrack) Fetch(v Qrackable, preds []string) (n *protos.Node, err error) {
-	return getValues(fmt.Sprintf(`eq(_identity, "%s")`, v.GetName()), preds)
+	return dq.getValues(fmt.Sprintf(`eq(_identity, "%s")`, v.GetName()), preds)
 }
 
 func (dq *Dqrack) getValues(search string, preds []string) (n *protos.Node, err error) {

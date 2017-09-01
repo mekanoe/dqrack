@@ -44,6 +44,12 @@
   revision = "83cd65fc365ace80eb6b6ecfc45203e43edfbc70"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/hashicorp/golang-lru"
+  packages = [".","simplelru"]
+  revision = "0a025b7e63adc15a622f29b0b2c4c3848243bbf6"
+
+[[projects]]
   name = "github.com/imdario/mergo"
   packages = ["."]
   revision = "3e95a51e0639b4cf372f2ccf74c86749d747fbdc"
@@ -90,6 +96,12 @@
   name = "github.com/prometheus/procfs"
   packages = [".","xfs"]
   revision = "e645f4e5aaa8506fc71d6edbc5c4ff02c04c46f2"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/segmentio/ksuid"
+  packages = ["."]
+  revision = "1c9d746aad27142a443654fba83c3b7578dbeba0"
 
 [[projects]]
   branch = "master"
@@ -142,6 +154,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d6da0759be68451c12685da108f5149b0d6fd71881668533ae99d573c1def88b"
+  inputs-digest = "e4512f4d967a277302d360eec5fac0c6ffec5b6fb9d6d5609416bb0d6fdccd84"
   solver-name = "gps-cdcl"
   solver-version = 1
