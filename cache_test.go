@@ -14,7 +14,7 @@ func TestCacheGet(t *testing.T) {
 	})
 
 	cacheNode.identity = cacheNode.GetName()
-	n0, err := dq.GetNode(cacheNode)
+	n0, err := dq.PutNode(cacheNode)
 	if err != nil {
 		t.Error(err)
 		return
@@ -41,7 +41,7 @@ func TestCacheGet_Miss(t *testing.T) {
 	})
 
 	cacheNode.identity = cacheNode.GetName()
-	n0, err := dq.GetNode(cacheNode)
+	n0, err := dq.PutNode(cacheNode)
 	if err != nil {
 		t.Error(err)
 		return

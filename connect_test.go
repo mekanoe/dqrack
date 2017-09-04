@@ -23,13 +23,13 @@ func TestConnect(t *testing.T) {
 	})
 	connNode2.identity = connNode2.GetName()
 
-	_, err := dq.GetNode(connNode1)
+	_, err := dq.PutNode(connNode1)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	_, err = dq.GetNode(connNode2)
+	_, err = dq.PutNode(connNode2)
 	if err != nil {
 		t.Error(err)
 		return

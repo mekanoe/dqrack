@@ -11,8 +11,8 @@ import (
 	"github.com/imdario/mergo"
 )
 
-// GetNode creates a node with edges from the struct.
-func (dq *Dqrack) GetNode(v Qrackable) (n dgraph.Node, err error) {
+// PutNode creates a node with edges from the struct.
+func (dq *Dqrack) PutNode(v Qrackable) (n dgraph.Node, err error) {
 	vName := v.GetName()
 	n, err = dq.Dgraph.NodeBlank(vName)
 	if err != nil {

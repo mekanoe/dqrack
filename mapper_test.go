@@ -13,7 +13,7 @@ import (
 func TestGetNode(t *testing.T) {
 	n := testTnode
 	n.identity = n.GetName()
-	_, err := dq.GetNode(n)
+	_, err := dq.PutNode(n)
 	if err != nil {
 		t.Error(err)
 		return
