@@ -23,25 +23,25 @@ func TestConnect(t *testing.T) {
 	})
 	connNode2.identity = connNode2.GetName()
 
-	_, err := dq.PutNode(connNode1)
+	_, err := tDq.PutNode(connNode1)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	_, err = dq.PutNode(connNode2)
+	_, err = tDq.PutNode(connNode2)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	err = dq.ConnectNodes(connNode1, "next-to", connNode2)
+	err = tDq.ConnectNodes(connNode1, "next-to", connNode2)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	o, err := dq.Fetch(connNode1, []string{"next-to { f1 }"})
+	o, err := tDq.Fetch(connNode1, []string{"next-to { f1 }"})
 	if err != nil {
 		t.Error(err)
 		return

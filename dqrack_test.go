@@ -15,7 +15,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-var dq *Dqrack
+var tDq *Dqrack
 
 func TestMain(m *testing.M) {
 	g, err := grpc.Dial(os.Getenv("DGRAPH_ADDR"), grpc.WithInsecure())
@@ -25,7 +25,8 @@ func TestMain(m *testing.M) {
 
 	dg := dgraph.NewDgraphClient([]*grpc.ClientConn{g}, dgraph.DefaultOptions, "/tmp/.tmp-"+time.Now().String())
 
-	dq, _ = New(dg)
+	tDq, _ = New(dg)
+	tDq.Debug = true
 
 	jsonCast(&testTnode, map[string]interface{}{
 		"Field1": "hello!",
@@ -41,7 +42,7 @@ type Tnode struct {
 	Field1 string `dq:"f1"`
 	Sub    struct {
 		HiHi string `dq:"f4"`
-	}
+	} `dq:",inline,prefix"`
 
 	identity string
 }
@@ -65,7 +66,7 @@ func (t Tnode) GetType() string {
 }
 
 func getValues(search string, preds []string) (n *protos.Node, err error) {
-	return dq.getValues(search, preds)
+	return tDq.getValues(search, preds)
 }
 
 // Helper func for casting weird types into good types.

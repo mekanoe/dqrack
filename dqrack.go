@@ -8,6 +8,7 @@ package dqrack // import "github.com/kayteh/dqrack"
 import (
 	"context"
 	"errors"
+	"log"
 
 	dgraph "github.com/dgraph-io/dgraph/client"
 	"github.com/dgraph-io/dgraph/protos"
@@ -28,6 +29,8 @@ type Node = dgraph.Node
 // Dqrack is a set of cheap tricks, like any other cheap trick library.
 type Dqrack struct {
 	Dgraph *dgraph.Dgraph
+
+	Debug bool
 
 	mapper *reflectx.Mapper
 	lru    *lru.ARCCache
@@ -101,4 +104,10 @@ func New(dg *dgraph.Dgraph) (*Dqrack, error) {
 
 func (dq *Dqrack) Run(req *dgraph.Req) (*protos.Response, error) {
 	return dq.Dgraph.Run(context.Background(), req)
+}
+
+func (dq *Dqrack) d(v ...interface{}) {
+	if dq.Debug {
+		log.Println(v...)
+	}
 }

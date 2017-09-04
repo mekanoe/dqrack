@@ -14,13 +14,13 @@ func TestCacheGet(t *testing.T) {
 	})
 
 	cacheNode.identity = cacheNode.GetName()
-	n0, err := dq.PutNode(cacheNode)
+	n0, err := tDq.PutNode(cacheNode)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	n1, err := dq.Node(cacheNode)
+	n1, err := tDq.Node(cacheNode)
 	if err != nil {
 		t.Error(err)
 		return
@@ -41,15 +41,15 @@ func TestCacheGet_Miss(t *testing.T) {
 	})
 
 	cacheNode.identity = cacheNode.GetName()
-	n0, err := dq.PutNode(cacheNode)
+	n0, err := tDq.PutNode(cacheNode)
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	dq.lru.Purge()
+	tDq.lru.Purge()
 
-	n1, err := dq.Node(cacheNode)
+	n1, err := tDq.Node(cacheNode)
 	if err != nil {
 		t.Error(err)
 		return
@@ -61,7 +61,7 @@ func TestCacheGet_Miss(t *testing.T) {
 }
 
 func TestCacheGet_HardMiss(t *testing.T) {
-	n, err := dq.cacheGet("not-good")
+	n, err := tDq.cacheGet("not-good")
 	if err != nil {
 		t.Error(err)
 		return
